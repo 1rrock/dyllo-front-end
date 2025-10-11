@@ -1,5 +1,6 @@
 import { ChannelCard } from "@/shared/components/chat/ChannelCard";
 import { SectionTitle } from "@/shared/components/chat/SectionTitle";
+import {useUiStore} from "@/shared/store/uiStore";
 
 export interface Channel {
     id: string;
@@ -13,7 +14,6 @@ interface ChannelListProps {
     channels: Channel[];
     directMessages: Channel[];
     activeChannelId?: string;
-    onChannelClick?: (channelId: string) => void;
 }
 
 export function ChannelList({
@@ -21,6 +21,8 @@ export function ChannelList({
     directMessages,
     activeChannelId,
 }: ChannelListProps) {
+    const { setIsSidebarOpen } = useUiStore();
+
     return (
         <div className="flex-1 overflow-y-auto p-4 [&::-webkit-scrollbar]:w-1.5 [&::-webkit-scrollbar-thumb]:bg-indigo-200 [&::-webkit-scrollbar-thumb]:rounded">
             <div className="mb-6">
@@ -34,7 +36,7 @@ export function ChannelList({
                         badge={channel.badge}
                         isActive={channel.id === activeChannelId}
                         href={`/chat/${channel.id}`}
-                        onClick={() => onChannelClick?.(channel.id)}
+                        onClick={() => setIsSidebarOpen(false)}
                     />
                 ))}
             </div>

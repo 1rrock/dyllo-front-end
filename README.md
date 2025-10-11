@@ -34,3 +34,21 @@ You can check out [the Next.js GitHub repository](https://github.com/vercel/next
 The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
 
 Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
+
+## Docker로 실행하기
+
+1. Docker 이미지 빌드:
+
+```bash
+docker build -t dyllo-nextjs .
+```
+
+2. 컨테이너 실행:
+
+```bash
+docker run -p 40000:40000 dyllo-nextjs
+```
+
+브라우저에서 [http://localhost:40000](http://localhost:40000) 접속하면 결과를 확인할 수 있습니다.
+
+> 개발 환경에서 실시간 반영이 필요하다면, docker-compose와 볼륨 마운트 설정을 추가할 수 있습니다.
