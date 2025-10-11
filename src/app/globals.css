@@ -1,26 +1,123 @@
 @import "tailwindcss";
 
-:root {
-  --background: #ffffff;
-  --foreground: #171717;
+@layer theme, base, components, utilities;
+
+@theme {
+    --color-text-black: #333333;
+    --color-text-gray: #999999;
+
+    --color-border-gray: #e0e7ff;
+    --color-disabled-gray: #bbb;
+    --color-error-red: #ef4444;
+    --color-warning-orange: #f59e0b;
+    --color-success-green: #4ade80;
+    --color-background-gray: #faf9fc;
+    --color-background-light: #f5f3ff;
+
+    --text-font-size: 15px;
+
+    --color-main-color: #667eea;
+    --color-primary: #667eea;
+    --color-primary-dark: #764ba2;
+    --color-secondary: #4a5568;
+
+    /* 그라데이션 색상 */
+    --gradient-primary: linear-gradient(135deg, #667eea, #764ba2);
+    --gradient-background: linear-gradient(135deg, #667eea 0%, #764ba2 50%, #4a5568 100%);
+
+    /* 추가 테마 색상 */
+    --color-hover-purple: #e0e7ff;
+    --color-active-purple: #ddd6fe;
+    --color-border-purple: #f0edf7;
 }
 
-@theme inline {
-  --color-background: var(--background);
-  --color-foreground: var(--foreground);
-  --font-sans: var(--font-geist-sans);
-  --font-mono: var(--font-geist-mono);
+@layer base {
+    :root {
+        font-family: "Noto Sans Korean", -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+        font-weight: 400;
+        font-style: normal;
+        color: var(--color-text-black);
+        background-color: #fff;
+    }
+
+    li {
+        list-style: none;
+    }
 }
 
-@media (prefers-color-scheme: dark) {
-  :root {
-    --background: #0a0a0a;
-    --foreground: #ededed;
-  }
+html,
+body,
+#root {
+    height: 100%;
+    margin: 0;
+    padding: 0;
 }
 
-body {
-  background: var(--background);
-  color: var(--foreground);
-  font-family: Arial, Helvetica, sans-serif;
+/* view transition */
+::view-transition-old(popover-open) {
+    display: none;
+}
+::view-transition-new(popover-open) {
+    animation: 0.15s ease-in-out both slide-up;
+}
+
+::view-transition-old(popover-close) {
+    animation: 0.15s ease-in-out both slide-down;
+}
+::view-transition-new(popover-close) {
+    display: none;
+}
+
+::view-transition-old(modal-open) {
+    display: none;
+}
+::view-transition-new(modal-open) {
+    animation: 0.15s ease-out both slide-left;
+}
+::view-transition-old(modal-close) {
+    animation: 0.15s ease-out both slide-right;
+}
+::view-transition-new(modal-close) {
+    display: none;
+}
+
+@keyframes slide-up {
+    from {
+        transform: translateY(100%);
+        opacity: 1;
+    }
+    to {
+        transform: translateY(0);
+        opacity: 1;
+    }
+}
+
+@keyframes slide-down {
+    from {
+        transform: translateY(0);
+        opacity: 1;
+    }
+    to {
+        transform: translateY(100%);
+        opacity: 1;
+    }
+}
+
+@keyframes slide-left {
+    from {
+        transform: translateX(100%);
+        opacity: 0;
+    }
+    to {
+        transform: translateX(0);
+        opacity: 1;
+    }
+}
+@keyframes slide-right {
+    from {
+        transform: translateX(0);
+    }
+    to {
+        transform: translateX(100%);
+    }
 }
