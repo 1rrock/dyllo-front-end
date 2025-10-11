@@ -42,11 +42,22 @@ export const checkEmailDuplicate = async (
     body: JSON.stringify(data),
   });
 
-  if (!response.ok) {
-    throw new Error("이메일 중복 확인에 실패했습니다.");
+  const result = await response.json();
+
+  // status가 400이면 중복된 이메일
+  if (result.status === 400) {
+    return {
+      isDuplicate: true,
+      message: result.msg,
+      status: result.status,
+      msg: result.msg,
+    };
   }
 
-  return response.json();
+  return {
+    isDuplicate: false,
+    ...result,
+  };
 };
 
 // 이메일 인증 코드 전송
@@ -86,4 +97,3 @@ export const verifyEmailCode = async (
 
   return response.json();
 };
-

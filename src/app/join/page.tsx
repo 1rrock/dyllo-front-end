@@ -4,15 +4,10 @@ import {useState, useEffect} from "react";
 import {useRouter} from "next/navigation";
 import {useForm} from "react-hook-form";
 import {zodResolver} from "@hookform/resolvers/zod";
-import * as z from "zod";
 import {SsgoiTransition} from "@ssgoi/react";
 import {
     Card,
     CardContent,
-    CardDescription,
-    CardFooter,
-    CardHeader,
-    CardTitle,
 } from "@/shared/components/ui/card";
 import {Button} from "@/shared/components/ui/button";
 import {Input} from "@/shared/components/ui/input";
@@ -28,26 +23,8 @@ import {
     useSendEmailCodeMutation,
     useVerifyEmailCodeMutation,
 } from "@/domain/join/api/query";
+import {joinSchema, type JoinFormData} from "@/domain/join/api/schema";
 import Image from "next/image";
-
-// Form validation schema
-const joinSchema = z.object({
-    email: z.string().email("올바른 이메일 주소를 입력해주세요."),
-    password: z
-        .string()
-        .min(8, "비밀번호는 최소 8자 이상이어야 합니다.")
-        .regex(
-            /^(?=.*[a-zA-Z])(?=.*\d)(?=.*[@$!%*?&])[A-Za-z\d@$!%*?&]/,
-            "비밀번호는 영문, 숫자, 특수문자를 포함해야 합니다."
-        ),
-    passwordConfirm: z.string(),
-    name: z.string().min(2, "이름은 최소 2자 이상이어야 합니다."),
-}).refine((data) => data.password === data.passwordConfirm, {
-    message: "비밀번호가 일치하지 않습니다.",
-    path: ["passwordConfirm"],
-});
-
-type JoinFormData = z.infer<typeof joinSchema>;
 
 export default function JoinPage() {
     const router = useRouter();
@@ -101,7 +78,7 @@ export default function JoinPage() {
         try {
             const result = await emailDuplicateMutation.mutateAsync({email});
             if (result.isDuplicate) {
-                alert("이미 사용 중인 이메일입니다.");
+                alert(result.msg || result.message || "이미 사용 중인 이메일입니다.");
                 return;
             }
 
@@ -139,7 +116,7 @@ export default function JoinPage() {
                 email,
                 code: verificationCode,
             });
-            if (result.status === 200) {
+            if (result.success) {
                 setIsEmailVerified(true);
                 setStep(3);
                 // 2초 후 Step 4로 이동
@@ -178,7 +155,7 @@ export default function JoinPage() {
 
     return (
         <SsgoiTransition id="/join">
-            <div className="flex min-h-screen items-center justify-center bg-gradient-to-br p-5">
+            <div className="flex min-h-screen items-center justify-center p-5">
                 <h1 className="absolute top-10 left-10 hidden md:flex items-center gap-2 text-2xl font-bold text-white">
                     <div className="relative w-[124px] h-[40px]">
                         <Image
@@ -192,9 +169,8 @@ export default function JoinPage() {
                     </div>
                 </h1>
                 <div className="w-full max-w-[440px]">
-                    <Card
-                        className="overflow-hidden rounded-3xl shadow-[0_20px_60px_rgba(0,0,0,0.3)] animate-[slideUp_0.5s_ease]">
-                        <CardContent className="py-10 px-8">
+                    <Card variant="auth">
+                        <CardContent variant="auth">
                             {/* Step Indicator */}
                             <div className="flex justify-center gap-2 mb-8">
                                 {[1, 2, 3, 4].map((s) => (
@@ -242,7 +218,9 @@ export default function JoinPage() {
                                             type="button"
                                             onClick={handleEmailCheck}
                                             disabled={emailDuplicateMutation.isPending || sendEmailCodeMutation.isPending}
-                                            className="w-full h-12 rounded-xl bg-gradient-to-r from-[#667eea] to-[#764ba2] text-white font-bold text-base shadow-[0_4px_16px_rgba(102,126,234,0.3)] hover:translate-y-[-2px] hover:shadow-[0_6px_24px_rgba(102,126,234,0.4)] active:translate-y-0 transition-all"
+                                            variant="gradient"
+                                            size="xl"
+                                            className="w-full"
                                         >
                                             {emailDuplicateMutation.isPending || sendEmailCodeMutation.isPending
                                                 ? "처리 중..."
@@ -252,7 +230,8 @@ export default function JoinPage() {
                                             type="button"
                                             onClick={() => router.push("/login")}
                                             variant="secondary"
-                                            className="w-full h-12 rounded-xl bg-gray-100 text-gray-700 font-bold hover:bg-gray-200 transition-all"
+                                            size="xl"
+                                            className="w-full bg-gray-100 text-gray-700 font-bold hover:bg-gray-200 transition-all"
                                         >
                                             취소
                                         </Button>
@@ -306,7 +285,9 @@ export default function JoinPage() {
                                         type="button"
                                         onClick={handleVerifyCode}
                                         disabled={verifyEmailCodeMutation.isPending || verificationCode.length !== 6}
-                                        className="w-full h-12 rounded-xl bg-gradient-to-r from-[#667eea] to-[#764ba2] text-white font-bold text-base shadow-[0_4px_16px_rgba(102,126,234,0.3)] hover:translate-y-[-2px] hover:shadow-[0_6px_24px_rgba(102,126,234,0.4)] active:translate-y-0 transition-all"
+                                        variant="gradient"
+                                        size="xl"
+                                        className="w-full"
                                     >
                                         {verifyEmailCodeMutation.isPending ? "확인 중..." : "인증하기"}
                                     </Button>
@@ -431,7 +412,9 @@ export default function JoinPage() {
                                         <Button
                                             type="submit"
                                             disabled={joinMutation.isPending}
-                                            className="w-full h-12 rounded-xl bg-gradient-to-r from-[#667eea] to-[#764ba2] text-white font-bold text-base shadow-[0_4px_16px_rgba(102,126,234,0.3)] hover:translate-y-[-2px] hover:shadow-[0_6px_24px_rgba(102,126,234,0.4)] active:translate-y-0 transition-all"
+                                            variant="gradient"
+                                            size="xl"
+                                            className="w-full"
                                         >
                                             {joinMutation.isPending ? "가입 중..." : "회원가입 완료"}
                                         </Button>

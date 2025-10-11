@@ -18,6 +18,8 @@ export interface EmailDuplicateRequest {
 export interface EmailDuplicateResponse {
   isDuplicate: boolean;
   message?: string;
+  status?: number;
+  msg?: string;
 }
 
 export interface EmailCodeRequest {
@@ -38,4 +40,3 @@ export interface EmailVerifyResponse {
   success: boolean;
   message?: string;
 }
-
