@@ -8,7 +8,6 @@ import {MessageList, Message} from "@/domain/chat/components/MessageList";
 import {ChatInput} from "@/domain/chat/components/ChatInput";
 import {
     channels,
-    directMessages,
     getChannelById,
     getMessagesByChannelId,
 } from "@/shared/data/dummyData";
@@ -36,13 +35,6 @@ export default function ChatPage() {
         setMessages(getMessagesByChannelId(channelId));
     }, [channelId, router]);
 
-    // 로그아웃 핸들러
-    const handleLogout = () => {
-        document.cookie = "auth_token=; path=/; max-age=0";
-        document.cookie = "user_email=; path=/; max-age=0";
-        router.push("/login");
-    };
-
     const handleSendMessage = (message: string) => {
         // 새 메시지 추가 (더미)
         const newMessage: Message = {
@@ -67,10 +59,7 @@ export default function ChatPage() {
                 userName="내 이름"
                 userStatus="🟢 온라인"
                 channels={channels}
-                directMessages={directMessages}
                 activeChannelId={channelId}
-                onNewChat={() => console.log("New chat")}
-                onLogout={handleLogout}
                 isOpen={isSidebarOpen}
                 onClose={() => setIsSidebarOpen(false)}
             />

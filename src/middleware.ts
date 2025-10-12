@@ -2,23 +2,13 @@ import { NextResponse } from 'next/server';
 import type { NextRequest } from 'next/server';
 
 export function middleware(request: NextRequest) {
-    const authToken = request.cookies.get('auth_token')?.value;
     const { pathname } = request.nextUrl;
-
-    // // 로그인 페이지 접근 시
-    // if (pathname === '/login') {
-    //     // 이미 인증된 경우 메인으로 리다이렉트
-    //     if (authToken) {
-    //         return NextResponse.redirect(new URL('/', request.url));
-    //     }
-    //     return NextResponse.next();
-    // }
-    //
-    // // 보호된 페이지 접근 시 (/ 등)
-    // if (!authToken) {
+    // 로그인 체크: refreshToken 쿠키가 없으면 /login으로 리다이렉트
+    const refreshToken = request.cookies.get('refreshToken');
+    console.log(refreshToken)
+    // if (!refreshToken && pathname !== '/login' && pathname !== '/join') {
     //     return NextResponse.redirect(new URL('/login', request.url));
     // }
-    //
     // return NextResponse.next();
 }
 

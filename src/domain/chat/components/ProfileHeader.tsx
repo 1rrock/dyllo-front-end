@@ -1,18 +1,24 @@
 import { Avatar } from "@/shared/components/chat/Avatar";
+import {logout} from "@/shared/store/authStore";
+import {useRouter} from "next/navigation";
 
 interface ProfileHeaderProps {
     name: string;
     status: string;
     onNewChat?: () => void;
-    onLogout?: () => void;
 }
 
 export function ProfileHeader({
     name,
     status,
     onNewChat,
-    onLogout,
 }: ProfileHeaderProps) {
+    const router = useRouter();
+
+    const onLogout = () => {
+        logout();
+        router.push('/login');
+    }
     return (
         <div className="p-6 pb-6 bg-gradient-to-br from-[#667eea] to-[#764ba2] text-white">
             <div className="flex items-center gap-3 mb-4">
@@ -27,7 +33,7 @@ export function ProfileHeader({
                     onClick={onNewChat}
                     className="flex-1 py-2 px-2 bg-white/20 border border-white/30 rounded-[10px] text-white text-xs cursor-pointer transition-all hover:bg-white/30"
                 >
-                    ➕ 새 대화
+                    ➕ 사일로 등록
                 </button>
                 <button
                     onClick={onLogout}

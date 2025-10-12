@@ -1,15 +1,19 @@
+"use client";
+
 import { ProfileHeader } from "./ProfileHeader";
 import { ChannelList, Channel } from "./ChannelList";
 import { cn } from "@/shared/lib/utils";
+import { useGetMySilos } from "@/domain/chat/api/silo/query";
+import useSiloDialog from "@/domain/chat/hook/useSiloDialog";
+import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter } from "@/shared/components/ui/dialog";
+import { Input } from "@/shared/components/ui/input";
+import { Button } from "@/shared/components/ui/button";
 
 interface SidebarProps {
     userName: string;
     userStatus: string;
     channels: Channel[];
-    directMessages: Channel[];
     activeChannelId?: string;
-    onNewChat?: () => void;
-    onLogout?: () => void;
     isOpen?: boolean;
     onClose?: () => void;
 }
@@ -17,14 +21,29 @@ interface SidebarProps {
 export function Sidebar({
     userName,
     userStatus,
-    channels,
-    directMessages,
     activeChannelId,
-    onNewChat,
-    onLogout,
     isOpen = true,
     onClose,
 }: SidebarProps) {
+    // 사일로 목록 쿼리
+    const { data: siloRes } = useGetMySilos();
+    const silos = siloRes?.data ?? [];
+    // dialog actions / state
+    const {
+        isOpen: dialogOpen,
+        mode,
+        name: dialogName,
+        setName: setDialogName,
+        openSilo,
+        close,
+        submitSilo,
+        submitChannel,
+        createSiloMut,
+        createChannelMut,
+    } = useSiloDialog();
+
+    // dialog state is consumed via useDialogActions; no local usage needed
+
     return (
         <>
             {/* 모바일 오버레이 */}
@@ -47,45 +66,44 @@ export function Sidebar({
                 <ProfileHeader
                     name={userName}
                     status={userStatus}
-                    onNewChat={onNewChat}
-                    onLogout={onLogout}
+                    onNewChat={openSilo}
                 />
+
                 <ChannelList
-                    channels={channels}
-                    directMessages={directMessages}
+                    silos={silos}
                     activeChannelId={activeChannelId}
+                    onChannelClick={(id) => {
+                        // 사이드바 닫기 등 UI 처리는 ChannelList 내부에서 setIsSidebarOpen 호출
+                    }}
                 />
             </div>
+
+            {/* Global dialog rendered here in Sidebar */}
+            <Dialog open={dialogOpen} onOpenChange={(v) => (v ? null : close())}>
+                <DialogContent>
+                    <DialogHeader>
+                        <DialogTitle>{mode === 'silo' ? '사일로 등록' : '채널 추가'}</DialogTitle>
+                    </DialogHeader>
+
+                    <form
+                        onSubmit={(e) => {
+                            e.preventDefault();
+                            if (mode === 'silo') submitSilo();
+                            else submitChannel();
+                        }}
+                        className="space-y-3"
+                    >
+                        <Input autoFocus value={dialogName} onChange={(e) => setDialogName(e.target.value)} placeholder={mode === 'silo' ? '사일로 이름' : '채널명 (예: 일반)'} />
+
+                        <DialogFooter>
+                            <div className="flex gap-2">
+                                <Button type="button" variant="outline" onClick={() => close()}>취소</Button>
+                                <Button type="submit" disabled={mode === 'silo' ? createSiloMut.isPending : createChannelMut.isPending}>{mode === 'silo' ? (createSiloMut.isPending ? '생성중...' : '생성') : (createChannelMut.isPending ? '생성중...' : '생성')}</Button>
+                            </div>
+                        </DialogFooter>
+                    </form>
+                </DialogContent>
+            </Dialog>
         </>
-    );
-}
-
-interface AvatarProps {
-    size?: "sm" | "md" | "lg";
-    name: string;
-    emoji?: string;
-    className?: string;
-}
-
-const sizeClasses = {
-    sm: "w-9 h-9 text-sm",
-    md: "w-12 h-12 text-lg",
-    lg: "w-14 h-14 text-2xl",
-};
-
-export function Avatar({ size = "md", name, emoji, className }: AvatarProps) {
-    const displayText = emoji || name.charAt(0);
-
-    return (
-        <div
-            className={cn(
-                "rounded-full bg-gradient-to-br from-[#667eea] to-[#764ba2] flex items-center justify-center text-white font-bold shrink-0",
-                sizeClasses[size],
-                size === "lg" && "bg-white text-[#764ba2] shadow-[0_4px_12px_rgba(0,0,0,0.15)]",
-                className
-            )}
-        >
-            {displayText}
-        </div>
     );
 }

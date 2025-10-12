@@ -1,6 +1,11 @@
-import { ChannelCard } from "@/shared/components/chat/ChannelCard";
-import { SectionTitle } from "@/shared/components/chat/SectionTitle";
+"use client"
+
+import {ChannelCard} from "@/shared/components/chat/ChannelCard";
+import {SectionTitle} from "@/shared/components/chat/SectionTitle";
 import {useUiStore} from "@/shared/store/uiStore";
+import {useState} from "react";
+import { useDialogStore } from "@/shared/store/dialogStore";
+import { ChevronDown, ChevronUp } from "lucide-react";
 
 export interface Channel {
     id: string;
@@ -10,52 +15,90 @@ export interface Channel {
     badge?: number;
 }
 
-interface ChannelListProps {
-    channels: Channel[];
-    directMessages: Channel[];
-    activeChannelId?: string;
+export interface Silo {
+    siloId: number;
+    name: string;
+    channels?: Channel[];
 }
 
-export function ChannelList({
-    channels,
-    directMessages,
-    activeChannelId,
-}: ChannelListProps) {
-    const { setIsSidebarOpen } = useUiStore();
+interface ChannelListProps {
+    silos?: Silo[];
+    activeChannelId?: string;
+    onChannelClick?: (id: string) => void;
+}
+
+export function ChannelList(
+    {
+        silos = [],
+        activeChannelId,
+        onChannelClick,
+    }: ChannelListProps
+) {
+    const {setIsSidebarOpen} = useUiStore();
+    const [collapsed, setCollapsed] = useState<Record<number, boolean>>({});
+
+    const openChannelDialog = useDialogStore((s) => s.openChannel);
+
+    const toggleCollapse = (siloId: number) => {
+        setCollapsed((prev) => ({...prev, [siloId]: !prev[siloId]}));
+    };
+
+    const openCreateDialog = (siloId: number) => openChannelDialog(siloId);
 
     return (
-        <div className="flex-1 overflow-y-auto p-4 [&::-webkit-scrollbar]:w-1.5 [&::-webkit-scrollbar-thumb]:bg-indigo-200 [&::-webkit-scrollbar-thumb]:rounded">
-            <div className="mb-6">
-                <SectionTitle title="큰 뎁스 채널" />
-                {channels.map((channel) => (
-                    <ChannelCard
-                        key={channel.id}
-                        avatar={channel.avatar}
-                        name={channel.name}
-                        preview={channel.preview}
-                        badge={channel.badge}
-                        isActive={channel.id === activeChannelId}
-                        href={`/chat/${channel.id}`}
-                        onClick={() => setIsSidebarOpen(false)}
-                    />
-                ))}
-            </div>
+        <div
+            className="flex-1 overflow-y-auto p-4 [&::-webkit-scrollbar]:w-1.5 [&::-webkit-scrollbar-thumb]:bg-indigo-200 [&::-webkit-scrollbar-thumb]:rounded">
+            {/* 사일로 섹션들 */}
+            {silos.map((silo) => (
+                <div key={silo.siloId} className="mb-6 group">
+                    <div className="flex items-center justify-between">
+                        <div className="flex items-center transition-transform duration-200 ease-out group-hover:translate-x-2">
+                            <button
+                                aria-label={`접기 ${silo.name}`}
+                                className="hidden text-sm px-2 py-1 rounded-md bg-white/80 hover:bg-white cursor-pointer group-hover:flex"
+                                onClick={() => toggleCollapse(silo.siloId)}
+                            >
+                                {collapsed[silo.siloId] ? <ChevronDown className="w-4 h-4"/> :
+                                    <ChevronUp className="w-4 h-4"/>}
+                            </button>
+                            <SectionTitle title={silo.name}/>
+                        </div>
 
-            <div className="mb-6">
-                <SectionTitle title="다이렉트 메시지" />
-                {directMessages.map((dm) => (
-                    <ChannelCard
-                        key={dm.id}
-                        avatar={dm.avatar}
-                        name={dm.name}
-                        preview={dm.preview}
-                        badge={dm.badge}
-                        isActive={dm.id === activeChannelId}
-                        href={`/chat/${dm.id}`}
-                        onClick={() => onChannelClick?.(dm.id)}
-                    />
-                ))}
-            </div>
+                        <div className="flex items-center gap-2">
+                            <button
+                                type="button"
+                                aria-label={`채널 추가 ${silo.name}`}
+                                className="flex item-center text-sm px-2 py-1 rounded-md bg-white/80 hover:bg-white cursor-pointer"
+                                onClick={() => openCreateDialog(silo.siloId)}
+                            >
+                                ➕
+                            </button>
+                        </div>
+                    </div>
+
+                    {!collapsed[silo.siloId] && (
+                        <div className="mt-3 space-y-2">
+                            {(silo.channels || []).map((channel) => (
+                                <ChannelCard
+                                    key={channel.id}
+                                    avatar={channel.avatar}
+                                    name={channel.name}
+                                    preview={channel.preview}
+                                    badge={channel.badge}
+                                    isActive={channel.id === activeChannelId}
+                                    href={`/chat/${channel.id}`}
+                                    onClick={() => {
+                                        onChannelClick?.(channel.id);
+                                        setIsSidebarOpen(false);
+                                    }}
+                                />
+                            ))}
+                        </div>
+                    )}
+                </div>
+            ))}
+
+            {/* Dialog is rendered in Sidebar now via global dialog store */}
         </div>
     );
 }

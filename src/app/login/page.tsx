@@ -14,39 +14,36 @@ import {Label} from "@/shared/components/ui/label";
 import Icon, {SimpleIcon} from "@/shared/components/ui/icon";
 import Image from "next/image";
 import {SsgoiTransition} from "@ssgoi/react";
+import {useForm} from "react-hook-form";
+import {zodResolver} from "@hookform/resolvers/zod";
+import {useLoginMutation} from "@/domain/login/api/query";
+import {loginSchema} from "@/domain/login/api/schema";
+import {LoginRequest} from "@/domain/login/api/types";
+import {setAccessToken} from "@/shared/store/authStore";
 
 export default function LoginPage() {
-    const [email, setEmail] = useState("");
-    const [password, setPassword] = useState("");
-    const [showPassword, setShowPassword] = useState(false);
     const router = useRouter();
+    const loginMutation = useLoginMutation();
+    const {register, handleSubmit, formState: {errors}} = useForm<LoginRequest>({
+        resolver: zodResolver(loginSchema),
+        mode: "onChange",
+    });
+    const [showPassword, setShowPassword] = useState(false);
 
-    const handleLogin = (e: React.FormEvent) => {
-        e.preventDefault();
-
-        // 임시 로그인 로직 (쿠키 기반)
-        if (email && password) {
-            // 쿠키에 토큰 저장 (7일간 유효)
-            document.cookie = `auth_token=temporary_token_12345; path=/; max-age=${60 * 60 * 24 * 7}`;
-            document.cookie = `user_email=${email}; path=/; max-age=${60 * 60 * 24 * 7}`;
+    const onSubmit = async (data: LoginRequest) => {
+        try {
+            const res = await loginMutation.mutateAsync(data);
+            setAccessToken(res.data); // accessToken 저장
             router.push("/");
-        }
-    };
-
-    const googleLogin = () => {
-        // 구글 로그인 로직 (임시)
-        const googleEmail = "zxcv1685@gmail.com"
-        if (googleEmail) {
-            document.cookie = `auth_token=google_token_12345; path=/; max-age=${60 * 60 * 24 * 7}`;
-            document.cookie = `user_email=${googleEmail}; path=/; max-age=${60 * 60 * 24 * 7}`;
-            router.push("/");
+        } catch (err: any) {
+            alert(err?.response?.data?.msg || "로그인에 실패했습니다.");
         }
     };
 
     return (
         <SsgoiTransition id="/login">
             <div className="flex min-h-screen flex-col items-center justify-center bg-white relative">
-                <h1 className="absolute top-10 left-10 hidden md:flex items-center gap-2 text-2xl font-bold text-white">
+                <h1 className="absolute top-10 left-1/2 items-center gap-2 text-2xl font-bold text-white md:left-10 -translate-x-1/2 md:translate-x-0 flex">
                     <div className="relative w-[124px] h-[40px]">
                         <Image
                             src="/assets/icon/app-logo.png"
@@ -71,7 +68,7 @@ export default function LoginPage() {
                                     </p>
                                 </div>
 
-                                <form onSubmit={handleLogin} className="space-y-5">
+                                <form onSubmit={handleSubmit(onSubmit)} className="space-y-5">
                                     <div className="space-y-2">
                                         <Label htmlFor="email" className="text-sm font-semibold text-gray-700">
                                             이메일
@@ -80,11 +77,11 @@ export default function LoginPage() {
                                             id="email"
                                             type="email"
                                             placeholder="example@dyllo.com"
-                                            value={email}
-                                            onChange={(e) => setEmail(e.target.value)}
+                                            {...register("email")}
                                             className="h-12 rounded-xl border-2 text-base transition-all focus:border-[#667eea] focus:ring-4 focus:ring-[#667eea]/10"
                                             required
                                         />
+                                        {errors.email && <p className="text-xs text-red-500 mt-1">{errors.email.message}</p>}
                                     </div>
 
                                     <div className="space-y-2">
@@ -96,8 +93,7 @@ export default function LoginPage() {
                                                 id="password"
                                                 type={showPassword ? "text" : "password"}
                                                 placeholder="비밀번호를 입력하세요"
-                                                value={password}
-                                                onChange={(e) => setPassword(e.target.value)}
+                                                {...register("password")}
                                                 className="h-12 rounded-xl border-2 text-base pr-12 transition-all focus:border-[#667eea] focus:ring-4 focus:ring-[#667eea]/10"
                                                 required
                                             />
@@ -109,6 +105,7 @@ export default function LoginPage() {
                                                 👁️
                                             </button>
                                         </div>
+                                        {errors.password && <p className="text-xs text-red-500 mt-1">{errors.password.message}</p>}
                                     </div>
 
                                     <Button
@@ -116,8 +113,9 @@ export default function LoginPage() {
                                         variant="gradient"
                                         size="xl"
                                         className="w-full"
+                                        disabled={loginMutation.isPending}
                                     >
-                                        로그인
+                                        {loginMutation.isPending ? "로그인 중..." : "로그인"}
                                     </Button>
 
                                     <div className="relative">
@@ -133,7 +131,7 @@ export default function LoginPage() {
                                         type="button"
                                         variant="outline"
                                         size="xl"
-                                        onClick={googleLogin}
+                                        onClick={() => alert("구글 로그인은 준비 중입니다.")}
                                         className="w-full bg-white border-2 border-gray-200 hover:bg-gray-50 gap-3"
                                     >
                                         <SimpleIcon name="google" className="w-5 h-5" />

@@ -9,7 +9,7 @@ function Card({ className, variant, ...props }: React.ComponentProps<"div"> & { 
       data-slot="card"
       className={cn(
         variant === "auth"
-          ? "overflow-hidden rounded-3xl shadow-[0_20px_60px_rgba(0,0,0,0.3)] animate-[slideUp_0.5s_ease]"
+          ? "overflow-hidden rounded-3xl shadow-none md:shadow-[0_20px_60px_rgba(0,0,0,0.3)] animate-[slideUp_0.5s_ease]"
           : "bg-card text-card-foreground flex flex-col gap-6 rounded-xl py-6 shadow-sm",
         className
       )}
