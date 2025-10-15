@@ -6,6 +6,11 @@ export interface LoginRequest {
 export interface LoginResponse {
   status: number;
   msg: string;
-  data: string; // accessToken
+  data: {
+      accessToken: string;
+      refreshToken: string | null;
+      memberId: number;
+      name: string
+  }
 }
 

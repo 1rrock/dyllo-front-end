@@ -2,11 +2,11 @@ export { ChatInput } from "./ChatInput";
 export { ChatHeader } from "./ChatHeader";
 export { MessageList } from "./MessageList";
 export { ProfileHeader } from "./ProfileHeader";
-export { ChannelList } from "./ChannelList";
+export { SiloList } from "./SiloList";
 export { Sidebar } from "./Sidebar";
 
 export type { Message } from "./MessageList";
-export type { Channel } from "./ChannelList";
+export type { Channel } from "./SiloList";
 export { Avatar } from "@/shared/components/chat/Avatar";
 export { Badge } from "@/shared/components/chat/Badge";
 export { ChannelCard } from "@/shared/components/chat/ChannelCard";

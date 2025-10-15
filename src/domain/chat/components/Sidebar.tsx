@@ -1,9 +1,8 @@
 "use client";
 
 import { ProfileHeader } from "./ProfileHeader";
-import { ChannelList, Channel } from "./ChannelList";
+import { SiloList, Channel } from "./SiloList";
 import { cn } from "@/shared/lib/utils";
-import { useGetMySilos } from "@/domain/chat/api/silo/query";
 import useSiloDialog from "@/domain/chat/hook/useSiloDialog";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter } from "@/shared/components/ui/dialog";
 import { Input } from "@/shared/components/ui/input";
@@ -12,7 +11,6 @@ import { Button } from "@/shared/components/ui/button";
 interface SidebarProps {
     userName: string;
     userStatus: string;
-    channels: Channel[];
     activeChannelId?: string;
     isOpen?: boolean;
     onClose?: () => void;
@@ -26,8 +24,6 @@ export function Sidebar({
     onClose,
 }: SidebarProps) {
     // 사일로 목록 쿼리
-    const { data: siloRes } = useGetMySilos();
-    const silos = siloRes?.data ?? [];
     // dialog actions / state
     const {
         isOpen: dialogOpen,
@@ -69,12 +65,8 @@ export function Sidebar({
                     onNewChat={openSilo}
                 />
 
-                <ChannelList
-                    silos={silos}
+                <SiloList
                     activeChannelId={activeChannelId}
-                    onChannelClick={(id) => {
-                        // 사이드바 닫기 등 UI 처리는 ChannelList 내부에서 setIsSidebarOpen 호출
-                    }}
                 />
             </div>
 

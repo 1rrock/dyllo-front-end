@@ -1,104 +1,46 @@
-"use client"
-
-import {ChannelCard} from "@/shared/components/chat/ChannelCard";
-import {SectionTitle} from "@/shared/components/chat/SectionTitle";
+import {useGetChannelList} from "@/domain/chat/api/channel/query";
+import {ChannelCard} from "@/shared/components/chat";
 import {useUiStore} from "@/shared/store/uiStore";
-import {useState} from "react";
-import { useDialogStore } from "@/shared/store/dialogStore";
-import { ChevronDown, ChevronUp } from "lucide-react";
-
-export interface Channel {
-    id: string;
-    avatar: string;
-    name: string;
-    preview?: string;
-    badge?: number;
-}
-
-export interface Silo {
-    siloId: number;
-    name: string;
-    channels?: Channel[];
-}
+import {useCurrentChannelStore} from "@/shared/store/currentChannelStore";
 
 interface ChannelListProps {
-    silos?: Silo[];
-    activeChannelId?: string;
-    onChannelClick?: (id: string) => void;
+    siloId: number;
+    activeChannelId?: number;
 }
 
-export function ChannelList(
+const ChannelList = (
     {
-        silos = [],
+        siloId,
         activeChannelId,
-        onChannelClick,
     }: ChannelListProps
-) {
+) => {
     const {setIsSidebarOpen} = useUiStore();
-    const [collapsed, setCollapsed] = useState<Record<number, boolean>>({});
+    const setCurrentChannel = useCurrentChannelStore(s => s.setCurrentChannel);
 
-    const openChannelDialog = useDialogStore((s) => s.openChannel);
+    const {data, isPending} = useGetChannelList(siloId);
 
-    const toggleCollapse = (siloId: number) => {
-        setCollapsed((prev) => ({...prev, [siloId]: !prev[siloId]}));
-    };
-
-    const openCreateDialog = (siloId: number) => openChannelDialog(siloId);
+    if (isPending) return;
+    const channelList = data.data;
+    // setCurrentChannel
 
     return (
-        <div
-            className="flex-1 overflow-y-auto p-4 [&::-webkit-scrollbar]:w-1.5 [&::-webkit-scrollbar-thumb]:bg-indigo-200 [&::-webkit-scrollbar-thumb]:rounded">
-            {/* 사일로 섹션들 */}
-            {silos.map((silo) => (
-                <div key={silo.siloId} className="mb-6 group">
-                    <div className="flex items-center justify-between">
-                        <div className="flex items-center transition-transform duration-200 ease-out group-hover:translate-x-2">
-                            <button
-                                aria-label={`접기 ${silo.name}`}
-                                className="hidden text-sm px-2 py-1 rounded-md bg-white/80 hover:bg-white cursor-pointer group-hover:flex"
-                                onClick={() => toggleCollapse(silo.siloId)}
-                            >
-                                {collapsed[silo.siloId] ? <ChevronDown className="w-4 h-4"/> :
-                                    <ChevronUp className="w-4 h-4"/>}
-                            </button>
-                            <SectionTitle title={silo.name}/>
-                        </div>
+        <div className="mt-3 space-y-2">
+            {channelList.map((item) => (
+                <ChannelCard
+                    key={item.channelId}
+                    avatar=""
+                    name={item.name}
+                    preview=""
+                    badge={0}
+                    isActive={item.channelId === Number(activeChannelId)}
+                    href={`/chat/${item.channelId}`}
+                    onClick={() => {
 
-                        <div className="flex items-center gap-2">
-                            <button
-                                type="button"
-                                aria-label={`채널 추가 ${silo.name}`}
-                                className="flex item-center text-sm px-2 py-1 rounded-md bg-white/80 hover:bg-white cursor-pointer"
-                                onClick={() => openCreateDialog(silo.siloId)}
-                            >
-                                ➕
-                            </button>
-                        </div>
-                    </div>
-
-                    {!collapsed[silo.siloId] && (
-                        <div className="mt-3 space-y-2">
-                            {(silo.channels || []).map((channel) => (
-                                <ChannelCard
-                                    key={channel.id}
-                                    avatar={channel.avatar}
-                                    name={channel.name}
-                                    preview={channel.preview}
-                                    badge={channel.badge}
-                                    isActive={channel.id === activeChannelId}
-                                    href={`/chat/${channel.id}`}
-                                    onClick={() => {
-                                        onChannelClick?.(channel.id);
-                                        setIsSidebarOpen(false);
-                                    }}
-                                />
-                            ))}
-                        </div>
-                    )}
-                </div>
+                        setIsSidebarOpen(false);
+                    }}
+                />
             ))}
-
-            {/* Dialog is rendered in Sidebar now via global dialog store */}
         </div>
     );
 }
+export default ChannelList;

@@ -19,7 +19,7 @@ import {zodResolver} from "@hookform/resolvers/zod";
 import {useLoginMutation} from "@/domain/login/api/query";
 import {loginSchema} from "@/domain/login/api/schema";
 import {LoginRequest} from "@/domain/login/api/types";
-import {setAccessToken} from "@/shared/store/authStore";
+import {setAuth} from "@/shared/store/authStore";
 
 export default function LoginPage() {
     const router = useRouter();
@@ -31,13 +31,13 @@ export default function LoginPage() {
     const [showPassword, setShowPassword] = useState(false);
 
     const onSubmit = async (data: LoginRequest) => {
-        try {
-            const res = await loginMutation.mutateAsync(data);
-            setAccessToken(res.data); // accessToken 저장
-            router.push("/");
-        } catch (err: any) {
-            alert(err?.response?.data?.msg || "로그인에 실패했습니다.");
-        }
+        const res = await loginMutation.mutateAsync(data);
+        setAuth({
+            accessToken: res.data.accessToken,
+            name: res.data.name,
+            memberId: res.data.memberId
+        }); // accessToken 저장
+        router.push("/");
     };
 
     return (

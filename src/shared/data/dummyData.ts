@@ -1,4 +1,4 @@
-import { Channel } from "@/domain/chat/components/ChannelList";
+import { Channel } from "@/domain/chat/components/SiloList";
 import { Message } from "@/domain/chat/components/MessageList";
 
 export const channels: Channel[] = [
@@ -33,6 +33,13 @@ export const directMessages: Channel[] = [
     },
     {
         id: "5",
+        avatar: "영",
+        name: "영희",
+        preview: "사진 봤어!",
+        badge: 1,
+    },
+    {
+        id: "6",
         avatar: "영",
         name: "영희",
         preview: "사진 봤어!",
@@ -147,6 +154,30 @@ export const channelMessages: Record<string, Message[]> = {
         },
     ],
     "5": [
+        {
+            id: "1",
+            type: "received",
+            message: "사진 봤어!",
+            time: "오후 4:00",
+            avatar: "영",
+            userName: "영희",
+        },
+        {
+            id: "2",
+            type: "sent",
+            message: "어떤 사진?",
+            time: "오후 4:02",
+        },
+        {
+            id: "3",
+            type: "received",
+            message: "어제 올린 여행 사진! 정말 예쁘더라 😍",
+            time: "오후 4:03",
+            avatar: "영",
+            userName: "영희",
+        },
+    ],
+    "6": [
         {
             id: "1",
             type: "received",

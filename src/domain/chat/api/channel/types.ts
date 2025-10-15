@@ -17,3 +17,17 @@ export interface CreateChannelResponse {
   data: ChannelItem;
 }
 
+export interface ChannelListRequest {
+  siloId: number;
+}
+
+export interface ChannelListResponse {
+  status: number;
+  msg: string;
+  data: ChannelListItem[];
+}
+
+export interface ChannelListItem {
+    channelId: number;
+    name: string;
+}

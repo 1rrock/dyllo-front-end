@@ -14,7 +14,7 @@ const sizeClasses = {
 };
 
 export function Avatar({ size = "md", name, emoji, className }: AvatarProps) {
-    const displayText = emoji || name.charAt(0);
+    const displayText = emoji || name?.charAt(0);
 
     return (
         <div
